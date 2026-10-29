@@ -29,10 +29,12 @@ Changes appear on the public site within about 30 seconds.
 ## Translations (EN / RU / KA)
 `lib/translations.js`
 
-## AI features (assistant, photo damage check, car report)
-1. console.anthropic.com -> create an API key (add credit, and set a monthly spending limit!)
-2. Vercel -> Settings -> Environment Variables: ANTHROPIC_API_KEY = your key -> redeploy
-3. Run the new "alerts" part of supabase.sql (replace OWNER_EMAIL) so customer requests are saved.
+## AI features (Gemini: assistant, photo damage check, car report, price check, repair estimate)
+1. Create a Gemini API key in Google AI Studio: https://aistudio.google.com/apikey
+2. In Vercel -> Project -> Settings -> Environment Variables, add `GEMINI_API_KEY` with your key (do not use a `NEXT_PUBLIC_` prefix and never commit the key to GitHub).
+3. Redeploy the project so the server-side API route receives the new variable.
+4. Google AI Studio's free tier availability, quotas, and search-grounding limits depend on model and account; check the current limits before relying on it for production.
+5. Run the new "alerts" part of supabase.sql (replace OWNER_EMAIL) so customer requests are saved.
 Customer requests appear at the bottom of /admin.
 
 ## Price Alerts (automatic) and Repair estimator
