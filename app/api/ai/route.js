@@ -53,10 +53,24 @@ async function remoteImagePart(url) {
 async function gemini(system, content, max = 1200, useSearch = false) {
   if (!process.env.GEMINI_API_KEY) throw new Error("AI is not configured yet. Add GEMINI_API_KEY in Vercel Environment Variables.");
   const parts = Array.isArray(content) ? content : [{ text: String(content ?? "") }];
+  // Keep reasoning overhead low for a customer-facing website.
+  // Gemini 2.5 uses thinkingBudget; Gemini 3.x uses thinkingLevel.
+  const generationConfig = {
+    maxOutputTokens: max,
+    responseMimeType: "application/json",
+  };
+  if (MODEL.startsWith("gemini-2.5")) {
+    generationConfig.thinkingConfig = { thinkingBudget: 0 };
+    generationConfig.temperature = 0.2;
+  } else if (MODEL.startsWith("gemini-3")) {
+    generationConfig.thinkingConfig = { thinkingLevel: "MINIMAL" };
+  } else {
+    generationConfig.temperature = 0.2;
+  }
   const body = {
     system_instruction: { parts: [{ text: system }] },
     contents: [{ role: "user", parts }],
-    generationConfig: { temperature: 0.2, maxOutputTokens: max, responseMimeType: "application/json" },
+    generationConfig,
     ...(useSearch ? { tools: [{ google_search: {} }] } : {}),
   };
   const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
@@ -68,11 +82,14 @@ async function gemini(system, content, max = 1200, useSearch = false) {
   const result = await response.json().catch(() => ({}));
   if (!response.ok) {
     const status = response.status;
+    const googleMessage = result?.error?.message || "No error details returned";
+    // Log the provider's real error in Vercel Function Logs (never log the API key).
+    console.error("[AUTOUSAKHATIA Gemini API error]", { status, model: MODEL, message: googleMessage });
     if (status === 400 || status === 403 || status === 404) {
-      throw new Error(`Gemini API error (${status}). Check that GEMINI_API_KEY is valid and the model ${MODEL} is available for your key.`);
+      throw new Error(`Gemini API error (${status}): ${googleMessage}`);
     }
-    if (status === 429) throw new Error("Gemini free-tier quota/rate limit reached. Please wait and try again.");
-    throw new Error(`Gemini API request failed (${status}). Please try again later.`);
+    if (status === 429) throw new Error(`Gemini quota/rate limit reached: ${googleMessage}`);
+    throw new Error(`Gemini API request failed (${status}): ${googleMessage}`);
   }
   const text = (result.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("");
   if (!text) throw new Error("Gemini did not return an answer. Please try again.");
