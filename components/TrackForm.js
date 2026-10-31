@@ -3,12 +3,49 @@ import { useEffect, useState } from "react";
 import { useT } from "@/lib/i18n";
 import { STAGES, TRACKERS } from "@/lib/site";
 
-// Copies the number, then opens the carrier's own tracking page in a new tab.
-function openTracker(tracker, number, setMsg, t) {
-  const n = (number || "").trim();
-  if (n && navigator.clipboard) navigator.clipboard.writeText(n).catch(() => {});
-  setMsg(t("Number copied. Paste it on the website."));
+// Open a direct result when the carrier supports a verified deep link.
+// For other carriers, copy the reference and open their official search form.
+async function openTracker(tracker, number, setMsg, t) {
+  const n = (number || "").trim().replace(/\s+/g, "").toUpperCase();
+  if (!n) {
+    setMsg(t("Enter a container or bill of lading number first."));
+    return;
+  }
+
+  // Maersk supports /tracking/{reference}; the result opens with the reference loaded.
+  if (tracker.deepLink === "maersk") {
+    window.open(`${tracker.url.replace(/\/$/, "")}/${encodeURIComponent(n)}`, "_blank", "noopener,noreferrer");
+    setMsg(t("Opening Maersk tracking for this number."));
+    return;
+  }
+
+  // Open synchronously inside the click handler so mobile popup blockers allow it.
   window.open(tracker.url, "_blank", "noopener,noreferrer");
+  let copied = false;
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(n);
+      copied = true;
+    }
+  } catch (_) {}
+
+  if (!copied) {
+    try {
+      const el = document.createElement("textarea");
+      el.value = n;
+      el.setAttribute("readonly", "");
+      el.style.position = "fixed";
+      el.style.opacity = "0";
+      document.body.appendChild(el);
+      el.select();
+      copied = document.execCommand("copy");
+      document.body.removeChild(el);
+    } catch (_) {}
+  }
+
+  setMsg(copied
+    ? t("Number copied. Paste it into the carrier tracking form.")
+    : t("Carrier tracking opened. Copy the number and paste it into the tracking form."));
 }
 
 export default function TrackForm() {
@@ -17,6 +54,7 @@ export default function TrackForm() {
   const [r, setR] = useState(null);
   const [busy, setBusy] = useState(false);
   const [ti, setTi] = useState(0);
+  const [autoDetect, setAutoDetect] = useState(true);
   const [num, setNum] = useState("");
   const [msg, setMsg] = useState("");
   const go = async (c = code) => {
@@ -32,6 +70,10 @@ export default function TrackForm() {
   };
   useEffect(() => { const c = new URLSearchParams(window.location.search).get("code"); if (c) { setCode(c); go(c); } }, []);
   const sel = { width: "100%", background: "var(--card)", border: "1px solid var(--bd)", color: "var(--tx)", padding: "10px 12px", borderRadius: 12, font: "inherit" };
+  const normalizedNum = num.trim().replace(/\s+/g, "").toUpperCase();
+  const detectedIndex = TRACKERS.findIndex((x) => x.prefixes?.some((prefix) => normalizedNum.startsWith(prefix)));
+  const selectedIndex = autoDetect ? detectedIndex : ti;
+  const selectedTracker = selectedIndex >= 0 ? TRACKERS[selectedIndex] : null;
   return (
     <div className="co">
       <div className="bar" style={{ marginBottom: 0 }}>
@@ -62,13 +104,17 @@ export default function TrackForm() {
       ))}
 
       <h3 style={{ margin: "24px 0 4px" }}>🌐 {t("Track on other websites")}</h3>
-      <p className="sub" style={{ margin: "0 0 10px", fontSize: 13 }}>{t("These links open the carrier's own website. Ask us for your container or bill of lading number.")}</p>
+      <p className="sub" style={{ margin: "0 0 10px", fontSize: 13 }}>{t("Enter your container or bill of lading number. We can recognize some container prefixes automatically. The carrier's own website provides the tracking results; if it cannot accept a direct link, your number is copied for pasting.")}</p>
       <div className="two">
+        <div><label>{t("Container or bill of lading number")}</label><input value={num} onChange={(e) => { setNum(e.target.value); setMsg(""); }} placeholder="MSKU1234567" /></div>
         <div><label>{t("Carrier / website")}</label>
-          <select style={sel} value={ti} onChange={(e) => setTi(+e.target.value)}>{TRACKERS.map((x, i) => <option key={x.name} value={i}>{x.name}</option>)}</select></div>
-        <div><label>{t("Container or bill of lading number")}</label><input value={num} onChange={(e) => setNum(e.target.value)} placeholder="MSKU1234567" /></div>
+          <select style={sel} value={autoDetect ? "auto" : ti} onChange={(e) => { if (e.target.value === "auto") setAutoDetect(true); else { setAutoDetect(false); setTi(+e.target.value); } }}>
+            <option value="auto">{t("Auto-detect carrier")}{detectedIndex >= 0 ? ` — ${TRACKERS[detectedIndex].name}` : ""}</option>
+            {TRACKERS.map((x, i) => <option key={x.name} value={i}>{x.name}</option>)}
+          </select></div>
       </div>
-      <button type="button" className="btn" style={{ marginTop: 12 }} onClick={() => openTracker(TRACKERS[ti], num, setMsg, t)}>{t("Copy number and open tracker")} ↗</button>
+      {autoDetect && normalizedNum.length >= 4 && detectedIndex < 0 && <p className="sub" style={{ fontSize: 12, margin: "8px 0 0" }}>{t("Carrier not recognized from this number. Please select it manually.")}</p>}
+      <button type="button" className="btn" style={{ marginTop: 12 }} disabled={!selectedTracker} onClick={() => selectedTracker && openTracker(selectedTracker, num, setMsg, t)}>{selectedTracker?.deepLink === "maersk" ? t("Track container") : t("Copy number and open tracker")} ↗</button>
       {msg && <p style={{ color: "var(--ac2)", fontSize: 13 }}>{msg}</p>}
     </div>
   );
