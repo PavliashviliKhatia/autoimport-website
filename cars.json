@@ -1,0 +1,41 @@
+[
+  {
+    "id": "s1",
+    "make": "Toyota",
+    "model": "Camry SE",
+    "year": 2021,
+    "price": 16500,
+    "miles": 42000,
+    "fuel": "Gasoline",
+    "trans": "Automatic",
+    "status": "available",
+    "desc": "Sample car — owner can edit or delete this.",
+    "img": ""
+  },
+  {
+    "id": "s2",
+    "make": "Tesla",
+    "model": "Model 3",
+    "year": 2020,
+    "price": 19800,
+    "miles": 38000,
+    "fuel": "Electric",
+    "trans": "Automatic",
+    "status": "transit",
+    "desc": "Sample car — arriving soon.",
+    "img": ""
+  },
+  {
+    "id": "s3",
+    "make": "Ford",
+    "model": "Mustang GT",
+    "year": 2019,
+    "price": 24000,
+    "miles": 29000,
+    "fuel": "Gasoline",
+    "trans": "Manual",
+    "status": "sold",
+    "desc": "Sample car — sold.",
+    "img": ""
+  }
+]
