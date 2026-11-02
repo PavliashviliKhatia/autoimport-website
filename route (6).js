@@ -1,56 +1,37 @@
 import { createClient } from "@supabase/supabase-js";
-import { SITE, EXTRA_COSTS, wa } from "@/lib/site";
+import { RADAR_MODELS } from "@/lib/site";
+export const maxDuration = 60;
 
-const norm = (s) => String(s || "").toLowerCase();
-function matches(a, c) {
-  const want = norm(a.make_model);
-  if (!want) return false; // alerts without a car name are handled by hand in /admin
-  const hay = norm(`${c.make} ${c.model}`);
-  if (!want.split(/\s+/).every((w) => hay.includes(w))) return false;
-  if (a.year_from && c.year && c.year < a.year_from) return false;
-  if (a.max_price && c.price > a.max_price) return false;
-  if (a.max_total && c.price + EXTRA_COSTS > a.max_total) return false;
-  if (a.auction && a.auction !== "any" && norm(c.auction) !== norm(a.auction)) return false;
-  if (a.damage && !norm(`${c.damage} ${c.description}`).includes(norm(a.damage))) return false;
-  return true;
+async function analyze(model) {
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
+    body: JSON.stringify({
+      model: process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5", max_tokens: 1200,
+      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 3 }],
+      system: `You are a used-car market analyst. Use web search (at most 3 searches) to describe the CURRENT USA used-car market (dealer and auction listings, mostly 2020-2024 model years) for the given model: demand, recent price trend, whether prices have dropped, where interesting deals appear, typical price range. Never invent numbers; use null / "unclear" when sources are thin. Reply with JSON only at the end: {"demand":"high|medium|low|unclear","price_trend":"rising|stable|falling|unclear","typical_price_usd":[number,number]|null,"fast_selling":boolean|null,"discounts":string,"deals":string,"note":string}. Keep strings short, in English.`,
+      messages: [{ role: "user", content: model }],
+    }),
+  });
+  if (!r.ok) throw new Error("AI error " + r.status);
+  const j = await r.json();
+  const txt = j.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+  const m = txt.match(/\{[\s\S]*\}/);
+  if (!m) throw new Error("No JSON");
+  return JSON.parse(m[0]);
 }
 
-// Called by /admin right after a NEW car is saved. Uses the logged-in owner's token,
-// so database rules (RLS) make sure only the owner can read customer requests.
-export async function POST(req) {
-  try {
-    const token = (req.headers.get("authorization") || "").replace("Bearer ", "");
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL, key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!url || !key || !token) return Response.json({ error: "Unauthorized" }, { status: 401 });
-    const sb = createClient(url, key, { global: { headers: { Authorization: "Bearer " + token } } });
-    const { id } = await req.json();
-    const { data: car, error: e1 } = await sb.from("cars").select("*").eq("id", id).single();
-    const { data: alerts, error: e2 } = await sb.from("alerts").select("*");
-    if (e1 || e2) return Response.json({ error: (e1 || e2).message }, { status: 403 });
-
-    const title = `${car.year} ${car.make} ${car.model}`;
-    const message = `Hello! A car matching your request is now available: ${title}, $${car.price}. Details: ${SITE.url}/cars`;
-    const out = [];
-    for (const a of alerts.filter((x) => matches(x, car))) {
-      let emailed = false;
-      const isMail = a.contact.includes("@") && !a.contact.startsWith("@");
-      if (isMail && process.env.RESEND_API_KEY) {
-        const r = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: { Authorization: "Bearer " + process.env.RESEND_API_KEY, "content-type": "application/json" },
-          body: JSON.stringify({
-            from: process.env.RESEND_FROM || "AUTOUSAKHATIA <onboarding@resend.dev>",
-            to: [a.contact.trim()],
-            subject: `New car for you: ${title}`,
-            html: `<p>${message}</p><p>WhatsApp: <a href="${wa()}">${SITE.phone}</a></p><p>მოგესალმებით! თქვენი მოთხოვნის შესაბამისი მანქანა დაემატა: <b>${title}</b>, $${car.price}.</p>`,
-          }),
-        });
-        emailed = r.ok;
-      }
-      out.push({ id: a.id, contact: a.contact, channel: a.channel, request: a.request, emailed });
-    }
-    return Response.json({ matches: out, message });
-  } catch (e) {
-    return Response.json({ error: e.message || "Error" }, { status: 500 });
-  }
+// Vercel Cron calls this weekly with "Authorization: Bearer CRON_SECRET".
+export async function GET(req) {
+  if (!process.env.CRON_SECRET || req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`)
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+  const out = await Promise.all(RADAR_MODELS.map(async (model) => {
+    try {
+      const data = await analyze(model);
+      const { error } = await sb.from("radar").upsert({ model, data, updated_at: new Date().toISOString() });
+      return { model, ok: !error, error: error && error.message };
+    } catch (e) { return { model, ok: false, error: e.message }; }
+  }));
+  return Response.json(out);
 }

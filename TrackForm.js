@@ -83,7 +83,7 @@ export default function TrackForm() {
     <div className="co">
       <div className="bar" style={{ marginBottom: 0 }}>
         <input value={code} onChange={(e) => { setCode(e.target.value); if (/^[A-Za-z]{4}\d{0,7}$/.test(e.target.value.trim())) setNum(e.target.value.trim().toUpperCase()); }} placeholder={t("Our tracking code")} />
-        <button className="btn" disabled={busy} onClick={() => go()}>{busy ? t("Thinking…") : "📍 " + t("Track")}</button>
+        <button className="btn" disabled={busy} onClick={() => { if (/^[A-Za-z]{4}\d{7}$/.test(code.trim())) { setNum(code.trim().toUpperCase()); document.getElementById("external-container-tracking")?.scrollIntoView({ behavior: "smooth", block: "center" }); } else go(); }}>{busy ? t("Thinking…") : "📍 " + t("Track")}</button>
       </div>
       {r && (r.error ? <p style={{ color: "var(--ac)" }}>{lookupStatus === 503 ? t("Internal order tracking is not configured. External container tracking is available below.") : lookupStatus === 429 ? t("Too many requests. Please try again later.") : lookupStatus === 0 ? t("Unable to connect to order tracking. Please try again.") : looksLikeContainer ? t("This is a shipping container number, not an internal order code. Use the external tracker below.") : t("Order code not found in our database. For shipping containers, use the external tracker below.")}</p> : (
         <div style={{ marginTop: 16 }}>
@@ -108,18 +108,18 @@ export default function TrackForm() {
         </div>
       ))}
 
-      <h3 style={{ margin: "24px 0 4px" }}>🌐 {t("Track on other websites")}</h3>
-      <p className="sub" style={{ margin: "0 0 10px", fontSize: 13 }}>{t("Enter your container or bill of lading number. We can recognize some container prefixes automatically. The carrier's own website provides the tracking results; if it cannot accept a direct link, your number is copied for pasting.")}</p>
+      <h3 id="external-container-tracking" style={{ margin: "24px 0 4px" }}>🌐 {t("Track on other websites")}</h3>
+      <p className="sub" style={{ margin: "0 0 10px", fontSize: 13 }}>{t("Enter your container or Bill of Lading number. Select the shipping line if known, or use the general tracker. Container prefixes do not always identify the shipping carrier.")}</p>
       <div className="two">
-        <div><label>{t("Container or bill of lading number")}</label><input value={num} onChange={(e) => { setNum(e.target.value); setMsg(""); }} placeholder="MSKU1234567" /></div>
+        <div><label>{t("Container or Bill of Lading number")}</label><input style={sel} value={num} onChange={(e) => { setNum(e.target.value); setMsg(""); }} placeholder="MSBU7151824" /></div>
         <div><label>{t("Carrier / website")}</label>
           <select style={sel} value={autoDetect ? "auto" : ti} onChange={(e) => { if (e.target.value === "auto") setAutoDetect(true); else { setAutoDetect(false); setTi(+e.target.value); } }}>
             <option value="auto">{t("Auto-detect carrier")}{detectedIndex >= 0 ? ` — ${TRACKERS[detectedIndex].name}` : ""}</option>
             {TRACKERS.map((x, i) => <option key={x.name} value={i}>{x.name}</option>)}
           </select></div>
       </div>
-      {autoDetect && normalizedNum.length >= 4 && detectedIndex < 0 && <p className="sub" style={{ fontSize: 12, margin: "8px 0 0" }}>{t("Carrier not identified automatically. We will open a general container tracker, or you can select a shipping line manually.")}</p>}
-      <button type="button" className="btn" style={{ marginTop: 12 }} disabled={!selectedTracker} onClick={() => selectedTracker && openTracker(selectedTracker, num, setMsg, t)}>{selectedTracker?.deepLink === "maersk" ? t("Track container") : t("Copy number and open tracker")} ↗</button>
+      {autoDetect && normalizedNum.length >= 4 && detectedIndex < 0 && <p className="sub" style={{ fontSize: 12, margin: "8px 0 0" }}>{t("Shipping line cannot be confirmed from this prefix. General tracking is selected; choose a carrier manually if you know it.")}</p>}
+      <button type="button" className="btn" style={{ marginTop: 12 }} disabled={!selectedTracker} onClick={() => selectedTracker && openTracker(selectedTracker, num, setMsg, t)}>{selectedTracker?.deepLink === "maersk" ? t("Track container") : t("Open tracking website (copy number)")} ↗</button>
       {msg && <p style={{ color: "var(--ac2)", fontSize: 13 }}>{msg}</p>}
     </div>
   );
