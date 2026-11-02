@@ -5,6 +5,7 @@ import { SITE } from "@/lib/site";
 import Footer from "@/components/Footer";
 import FloatingAI from "@/components/FloatingAI";
 import { getCars } from "@/lib/cars";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata = {
   metadataBase: new URL(SITE.url),
@@ -41,6 +42,7 @@ export default async function RootLayout({ children }) {
           <Footer />
           <FloatingAI cars={cars} />
         </LangProvider>
+        <Analytics />
       </body>
     </html>
   );
