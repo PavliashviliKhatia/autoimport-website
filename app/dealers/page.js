@@ -2,7 +2,7 @@ import { T } from "@/lib/i18n";
 import RequestForm from "@/components/RequestForm";
 import Link from "next/link";
 
-export const metadata = { title: "For dealers and importers", description: "Partner terms for car dealers and importers: sourcing from US auctions, shipping and market data." };
+export const metadata = { alternates: { canonical: "/dealers" }, title: "For dealers and importers", description: "Partner terms for car dealers and importers: sourcing from US auctions, shipping and market data." };
 
 export default function Dealers() {
   return (

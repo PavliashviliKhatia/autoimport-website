@@ -6,7 +6,7 @@ import RequestForm from "@/components/RequestForm";
 import OpenAI from "@/components/OpenAI";
 
 export const revalidate = 30;
-export const metadata = { title: "US auctions — Copart, IAAI", description: "Send us a Copart or IAAI lot. We check the lot, damage and full cost, and bid only with your written consent." };
+export const metadata = { alternates: { canonical: "/auctions" }, title: "US auctions — Copart, IAAI", description: "Send us a Copart or IAAI lot. We check the lot, damage and full cost, and bid only with your written consent." };
 
 export default async function Auctions() {
   const cars = (await getCars()).filter((c) => c.auction && c.status !== "sold");

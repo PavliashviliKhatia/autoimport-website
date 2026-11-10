@@ -8,12 +8,31 @@ import { getCars } from "@/lib/cars";
 
 export const metadata = {
   metadataBase: new URL(SITE.url),
-  title: { default: "AUTOUSAKHATIA — Cars from USA to Georgia", template: "%s | AUTOUSAKHATIA" },
-  description:
-    "We buy cars at US auctions, ship them to Poti and clear customs in Georgia. ავტომობილების იმპორტი აშშ-დან საქართველოში. Авто из США в Грузию.",
-  keywords: ["car import Georgia", "cars from USA", "ავტომობილები აშშ-დან", "авто из США в Грузию", "Copart", "IAAI"],
-  openGraph: { title: "AUTOUSAKHATIA", description: "Cars from the USA, delivered to Georgia.", type: "website", images: ["/logo.png"] },
+  applicationName: "AUTOUSAKHATIA",
+  title: {
+    default: "მანქანების ჩამოყვანა ამერიკიდან | AUTOUSAKHATIA",
+    template: "%s | AUTOUSAKHATIA",
+  },
+  description: "მანქანების ჩამოყვანა ამერიკიდან საქართველოში — Copart და IAAI აუქციონები, ავტომობილების შერჩევა, შეძენა, ტრანსპორტირება, განბაჟება და კონტეინერის თრექინგი. Cars from USA to Georgia.",
+  keywords: [
+    "მანქანის ჩამოყვანა ამერიკიდან", "მანქანები ამერიკიდან", "ავტომობილების იმპორტი",
+    "მანქანის ჩამოყვანა აშშ-დან", "ამერიკის აუქციონები", "Copart Georgia", "IAAI Georgia",
+    "ავტომობილის ტრანსპორტირება", "კონტეინერის თრექინგი", "cars from USA to Georgia",
+    "USA car import Georgia", "авто из США в Грузию", "автомобили из Америки",
+    "AUTOUSAKHATIA", "ავტოუსახათია",
+  ],
   alternates: { canonical: "/" },
+  openGraph: {
+    type: "website", locale: "ka_GE", alternateLocale: ["en_US", "ru_RU"],
+    url: SITE.url, siteName: "AUTOUSAKHATIA",
+    title: "AUTOUSAKHATIA — მანქანების ჩამოყვანა ამერიკიდან",
+    description: "ავტომობილების შერჩევა, შეძენა და ჩამოყვანა აშშ-დან საქართველოში. Copart, IAAI, ტრანსპორტირება და თრექინგი.",
+    images: [{ url: "/logo.png", alt: "AUTOUSAKHATIA logo" }],
+  },
+  twitter: { card: "summary", title: "AUTOUSAKHATIA — Cars from USA to Georgia", description: "Car sourcing, US auctions, shipping and tracking to Georgia.", images: ["/logo.png"] },
+  icons: { icon: "/icon.svg", apple: "/apple-icon.png" },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
+  ...(process.env.GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } } : {}),
 };
 
 export const viewport = { width: "device-width", initialScale: 1, viewportFit: "cover" };
@@ -24,17 +43,29 @@ export default async function RootLayout({ children }) {
   const cars = (await getCars()).filter((c) => c.status !== "sold").map(({ id, make, model, year, price, img }) => ({ id, make, model, year, price, img }));
   const ld = {
     "@context": "https://schema.org",
-    "@type": "AutoDealer",
+    "@type": "Organization",
+    "@id": `${SITE.url}/#organization`,
     name: SITE.name,
+    url: SITE.url,
+    logo: `${SITE.url}/logo.png`,
     telephone: SITE.phone,
     email: SITE.email,
-    address: { "@type": "PostalAddress", streetAddress: SITE.address, addressCountry: "GE" },
+    areaServed: { "@type": "Country", name: "Georgia" },
+    knowsLanguage: ["ka", "en", "ru"],
+  };
+  const websiteLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${SITE.url}/#website`,
+    name: SITE.name,
     url: SITE.url,
+    publisher: { "@id": `${SITE.url}/#organization` },
+    inLanguage: ["ka", "en", "ru"],
   };
   return (
     <html lang="en">
       <body>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([ld, websiteLd]).replace(/</g, "\\u003c") }} />
         <LangProvider>
           <Nav />
           {children}

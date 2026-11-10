@@ -7,7 +7,7 @@ import TrackForm from "@/components/TrackForm";
 const HOW = [["Choose", "Pick a car from our list or tell us what you want."], ["Buy", "We bid and purchase at USA auctions for you."], ["Ship", "Safe sea shipping with tracking at every stage."], ["Receive", "Customs clearance and delivery to your door."]];
 const FAQ = [["How long does delivery take?", "Usually 45–60 days from auction win to the keys in your hands."], ["What is included in the price?", "Car, auction fees and customs — all shown in the estimate."], ["Can I see the car before buying?", "Yes. We send full photos and videos, and inspection reports on request."]];
 
-export const metadata = { title: "Car import & order tracking", description: "Order car delivery from the USA to Georgia and track every stage with your tracking code." };
+export const metadata = { alternates: { canonical: "/import" }, title: "Car import & order tracking", description: "Order car delivery from the USA to Georgia and track every stage with your tracking code." };
 
 export default function ImportPage() {
   return (

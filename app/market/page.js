@@ -3,7 +3,7 @@ import { T } from "@/lib/i18n";
 import MarketView from "@/components/MarketView";
 
 export const revalidate = 60;
-export const metadata = { title: "Georgian car market", description: "Cars for sale in Georgia. Sell your car — listings appear after review." };
+export const metadata = { alternates: { canonical: "/market" }, title: "Georgian car market", description: "Cars for sale in Georgia. Sell your car — listings appear after review." };
 
 async function getListings() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL, key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

@@ -1,7 +1,7 @@
 import { T } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
 
-export const metadata = { title: "Privacy policy" };
+export const metadata = { alternates: { canonical: "/privacy" }, title: "Privacy policy" };
 
 const P = [
   "We collect only what you send us: name, phone, e-mail or messenger contact, car requests, reviews, and photos you upload.",

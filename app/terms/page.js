@@ -1,6 +1,6 @@
 import { T } from "@/lib/i18n";
 
-export const metadata = { title: "Terms of use" };
+export const metadata = { alternates: { canonical: "/terms" }, title: "Terms of use" };
 
 const P = [
   "Prices, calculators and AI answers are estimates, not an offer. The final price is confirmed in writing.",

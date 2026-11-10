@@ -3,7 +3,7 @@ import { T } from "@/lib/i18n";
 import { getCars } from "@/lib/cars";
 
 export const revalidate = 3600;
-export const metadata = { title: "Car Market Radar", description: "Weekly market snapshot for popular car models imported from the USA." };
+export const metadata = { alternates: { canonical: "/radar" }, title: "Car Market Radar", description: "Weekly market snapshot for popular car models imported from the USA." };
 
 const COL = { high: "#2ecc71", medium: "#ffb703", low: "#9aa3b5", rising: "#e5322d", stable: "#3da5ff", falling: "#2ecc71", unclear: "#9aa3b5" };
 const LBL = { high: "High", medium: "Medium", low: "Low", rising: "Rising", stable: "Stable", falling: "Falling", unclear: "Unclear" };

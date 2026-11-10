@@ -1,6 +1,6 @@
 import { T } from "@/lib/i18n";
 
-export const metadata = { title: "FAQ", description: "Frequently asked questions about importing cars from the USA to Georgia." };
+export const metadata = { alternates: { canonical: "/faq" }, title: "FAQ", description: "Frequently asked questions about importing cars from the USA to Georgia." };
 
 const FAQ = [
   ["How long does delivery take?", "Usually 45–60 days from auction win to the keys in your hands."],

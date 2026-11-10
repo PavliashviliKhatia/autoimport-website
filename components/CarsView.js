@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { carPath, isPublicCar } from "@/lib/car-seo";
 import { useT, useLang } from "@/lib/i18n";
 import { money, wa, EXTRA_COSTS, TRUST } from "@/lib/site";
 import VinCheck from "./VinCheck";
@@ -94,6 +96,7 @@ export default function CarsView({ cars, compact = false }) {
             <Photo c={c} t={t} />
             <div className="info">
               <h3>{c.year} {c.make} {c.model}</h3>
+              {isPublicCar(c) && <Link href={carPath(c)} onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", margin: "6px 0 10px", color: "var(--ac, #e33)" }}>View car details →</Link>}
               <div className="meta"><span>{Number(c.miles || 0).toLocaleString()} mi</span><span>{c.fuel}</span><span>{c.trans}</span></div>
               <div className="price">{money(c.price)}{c.old_price > c.price ? <s style={{ color: "var(--mu)", fontSize: 14, marginLeft: 8 }}>{money(c.old_price)}</s> : null}</div>
               <small style={{ color: "var(--mu)" }}>≈ {money(c.price + EXTRA_COSTS)} {t("in Georgia (est.)")}</small>

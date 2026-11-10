@@ -3,7 +3,7 @@ import { T } from "@/lib/i18n";
 import RequestForm from "@/components/RequestForm";
 
 export const revalidate = 60;
-export const metadata = { title: "Car parts and services", description: "Mechanics, service centers, body shops and parts in Georgia." };
+export const metadata = { alternates: { canonical: "/services" }, title: "Car parts and services", description: "Mechanics, service centers, body shops and parts in Georgia." };
 
 async function getServices() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL, key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
