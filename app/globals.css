@@ -107,7 +107,7 @@ nav .r .chip.ph span{display:inline}
 nav .links a[href="/cars"]{color:inherit;background:none;padding:4px 0;border-radius:0;font-weight:inherit}
 
 /* ---- footer ---- */
-footer.site{padding:50px 0 24px;text-align:left;color:var(--mu);font-size:14px;border-top:1px solid var(--bd);background:var(--bg2)}
+footer.site{padding:50px 0 24px;text-align:left;color:var(--mu);font-size:14px;border-top:1px solid var(--bd);background:var(--bg)}
 .ft{display:grid;grid-template-columns:1.2fr 1.3fr 1.1fr 1fr;gap:30px}
 .ft h4{margin:0 0 12px;color:var(--tx);font-size:15px}
 .ft a,.ft span{display:block;padding:4px 0}
@@ -225,3 +225,9 @@ main .contact-card{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clam
   nav .links{flex:1;min-width:0;justify-content:space-evenly;gap:8px;}
 }
 @media(min-width:1281px){nav .links{overflow-x:auto;scrollbar-width:none;justify-content:safe space-evenly}nav .links::-webkit-scrollbar{display:none}nav .links a{flex-shrink:0}}
+
+/* Matching circular floating shortcuts on desktop and mobile. */
+.floating-shortcuts .aifab{box-sizing:border-box;width:54px;height:54px;min-width:54px;min-height:54px;padding:0;border:2px solid #fff;border-radius:50%;display:grid;place-items:center;gap:0;box-shadow:0 4px 14px #0003}
+.floating-shortcuts .aifab svg{width:30px;height:30px}
+.floating-shortcuts .aifab:focus-visible{outline:3px solid var(--tx);outline-offset:3px}
+.floating-shortcuts .whatsapp-fab{box-sizing:border-box}
