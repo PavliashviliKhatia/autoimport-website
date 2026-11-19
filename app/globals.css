@@ -8,7 +8,7 @@ html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5}
 a{color:inherit;text-decoration:none}
-.wrap{max-width:1150px;margin:auto;padding:0 20px}
+.wrap{width:95%;max-width:1600px;margin:auto;padding:0 clamp(8px,1vw,16px)}
 nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd)}
 nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
 .logo{font-weight:900;letter-spacing:.5px;font-size:20px}.logo b{color:var(--ac)}
@@ -152,3 +152,22 @@ nav .burger{height:40px;width:40px}
 @media(max-width:900px){.nbtn.call{padding:0;width:40px}.nbtn.call span{display:none}}
 
 .brandpic{border:0;background:none;overflow:visible}
+
+/* Shared public layout; keep narrow admin forms and dialogs intact. */
+main section > .wrap[style*="max-width: 820px"],
+main section > .wrap[style*="max-width: 780px"]{max-width:1600px!important}
+main .grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr))}
+main .steps{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+main .hero .wrap > *,main .calc > *,main .cg > *{min-width:0}
+nav .wrap{padding-right:clamp(8px,1vw,16px);gap:8px;flex-wrap:nowrap}
+nav .brandpic{position:static;flex-shrink:0;width:48px;height:48px}
+nav .logo,nav .r{flex-shrink:0;white-space:nowrap}
+nav .links{flex-wrap:nowrap;gap:clamp(8px,.8vw,16px);white-space:nowrap}
+nav .menu{width:95%;max-width:1600px}
+@media(min-width:1281px){nav .links{display:flex}nav .burger,nav .menu{display:none}}
+@media(max-width:1280px){nav .links{display:none}nav .burger{display:inline-flex;align-items:center;justify-content:center}nav .menu{display:grid}}
+
+@media(max-width:860px){.wrap{width:100%;padding-left:16px;padding-right:16px}nav .wrap{padding:6px 12px}}
+@media(max-width:560px){nav .wrap{flex-wrap:wrap}nav .logo{order:0}nav .brandpic{order:1;margin-left:auto}nav .r{order:2;width:100%;justify-content:flex-end;flex-wrap:wrap}main .two,main .row{grid-template-columns:minmax(0,1fr)} }
+
+@media(min-width:1281px) and (max-width:1550px){nav .links{gap:8px;font-size:13px}nav .nbtn.call{padding:0 8px;font-size:12px}nav .lg button{padding:0 7px}nav .logo{font-size:17px}}

@@ -21,7 +21,7 @@ export default async function Market() {
     <main>
       <section style={{ paddingTop: 50 }}>
         <div className="wrap">
-          <h2>🇬🇪 <T>Georgian car market</T></h2>
+          <h2><svg aria-hidden="true" viewBox="0 0 90 60" style={{ width: "1.15em", height: "0.77em", verticalAlign: "-0.02em", border: "1px solid #dfe3ea", borderRadius: 2 }}><rect width="90" height="60" fill="#fff"/><path d="M39 0h12v60H39zM0 24h90v12H0z" fill="#d40000"/>{[[20,12],[70,12],[20,48],[70,48]].map(([x,y]) => <path key={`${x}-${y}`} transform={`translate(${x} ${y})`} d="M-3 -8Q0 -6 3 -8L2 -2 8 -3Q6 0 8 3L2 2 3 8Q0 6 -3 8L-2 2 -8 3Q-6 0 -8 -3L-2 -2Z" fill="#d40000"/>)}</svg>{" "}<T>Georgian car market</T></h2>
           <p className="sub"><T>Cars for sale in Georgia. Listings appear after our review. We do not guarantee deals between users — always inspect the car and check the documents.</T></p>
           <MarketView listings={listings} />
         </div>
