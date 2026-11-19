@@ -171,3 +171,24 @@ nav .menu{width:95%;max-width:1600px}
 @media(max-width:560px){nav .wrap{flex-wrap:wrap}nav .logo{order:0}nav .brandpic{order:1;margin-left:auto}nav .r{order:2;width:100%;justify-content:flex-end;flex-wrap:wrap}main .two,main .row{grid-template-columns:minmax(0,1fr)} }
 
 @media(min-width:1281px) and (max-width:1550px){nav .links{gap:8px;font-size:13px}nav .nbtn.call{padding:0 8px;font-size:12px}nav .lg button{padding:0 7px}nav .logo{font-size:17px}}
+
+/* Home collections, route banner and shared contact layout. */
+#latest .grid{grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch}
+#latest .grid>.car{min-width:0;display:flex;flex-direction:column}
+#latest .grid>.car .info{flex:1;overflow-wrap:anywhere}
+.hero .wrap>.route-banner{grid-column:1/-1;grid-row:1;display:flex;align-items:center;justify-content:center;gap:12px;width:100%;background:#ffb703;color:#352400;border:1px solid #ffb703;font-weight:800;font-size:14px;padding:10px 16px;margin-bottom:12px;text-align:center}
+.route-banner img,.hub-flag{width:30px;height:20px;object-fit:contain;border-radius:2px;flex:none;vertical-align:middle}
+.hero .wrap>.hero-copy{grid-column:1;grid-row:2;min-width:0}
+.hero .wrap>.rc{grid-column:2;grid-row:2;min-width:0}
+main .calc{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
+main .calc>.co{min-width:0;display:flex;flex-direction:column}
+main .calc>.co:first-child .mini{margin-top:auto;padding-top:14px}
+main .contact-card{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(20px,4vw,60px);align-items:start;background:var(--card);border:1px solid var(--bd);border-radius:22px;padding:clamp(20px,3vw,42px)}
+.contact-card h2,.contact-card .contact-direct h3{margin:0 0 8px;line-height:1.2;font-size:clamp(24px,2.4vw,34px);letter-spacing:-.5px}
+.contact-card .contact-direct{border-left:1px solid var(--bd);padding-left:clamp(20px,3vw,40px);align-content:start;overflow-wrap:anywhere;gap:18px}
+.contact-card .contact-direct a,.contact-card .contact-direct p{min-width:0;overflow-wrap:anywhere}
+@media(max-width:1200px){#latest .grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:980px){#latest .grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:860px){main .calc,main .contact-card{grid-template-columns:minmax(0,1fr)}.contact-card .contact-direct{border-left:0;padding-left:0;border-top:1px solid var(--bd);padding-top:24px}.hero .wrap>.rc{margin-top:30px}}
+@media(max-width:680px){#latest .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#latest .info{padding:10px}#latest .info h3{font-size:15px}#latest .meta{gap:4px}}
+@media(max-width:380px){#latest .grid{grid-template-columns:minmax(0,1fr)}}

@@ -12,7 +12,7 @@ export default function Contact() {
   return (
     <section id="contact">
       <div className="wrap">
-        <div className="cg">
+        <div className="cg contact-card">
           <div>
             <h2>{t("Tell us what you want")}</h2>
             <p className="sub">{t("Model, year and budget are enough. We reply the same day.")}</p>
@@ -24,8 +24,8 @@ export default function Contact() {
               <button className="btn" onClick={send}>{t("Send on WhatsApp")}</button>
             </form>
           </div>
-          <div className="dc">
-            <h3 style={{ margin: 0, fontSize: 22 }}>{t("Or reach us directly")}</h3>
+          <div className="dc contact-direct">
+            <h3>{t("Or reach us directly")}</h3>
             <a href={"tel:" + SITE.phone.replace(/\s/g, "")}>📞 {SITE.phone}</a>
             <a href={wa()} target="_blank" rel="noopener noreferrer">WhatsApp</a>
             <p>📍 <a href={"https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(SITE.address + ", Georgia")} target="_blank" rel="noopener noreferrer">{SITE.address}</a><small>{t("Open Monday to Saturday.")}</small></p>

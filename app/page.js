@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { T } from "@/lib/i18n";
 import Collections from "@/components/Collections";
+import Contact from "@/components/Contact";
 import Hub from "@/components/Hub";
 import QuickTools from "@/components/QuickTools";
 import HeroSearch from "@/components/HeroSearch";
@@ -17,7 +18,8 @@ export default async function Home() {
     <main>
       <header className="hero">
         <div className="wrap">
-          <span className="tag"><T>🇺🇸 USA → Georgia</T></span>
+          <div className="tag route-banner"><img src="/flags/us.svg" alt="" /><T>USA → Georgia</T><img src="/flags/ge.svg" alt="" /></div>
+          <div className="hero-copy">
           <h1><T>Your dream car,</T><br /><span><T>straight from America.</T></span></h1>
           <p><T>We find, buy, ship and clear cars from US auctions. Transparent prices, real photos, full support from bid to keys.</T></p>
           <div className="cta">
@@ -25,6 +27,7 @@ export default async function Home() {
             <Link className="btn g" href="/#tools"><T>Cost estimate</T></Link>
           </div>
           <HeroSearch />
+          </div>
           <div className="rc">
             <svg viewBox="0 0 400 170">
               <path id="rp" d="M20 140C100 20 200 20 280 100S350 140 380 80" fill="none" stroke="#e5322d" strokeWidth="3" strokeDasharray="7 6" />
@@ -64,6 +67,7 @@ export default async function Home() {
       </section>
 
       <div style={{ background: "var(--bg2)" }}><Hub /></div>
+      <Contact />
     </main>
   );
 }

@@ -19,7 +19,7 @@ export default function Hub() {
         <p className="sub" />
         <div className="steps">
           {ITEMS.map(([ic, t, d, href]) => {
-            const inner = <><div style={{ fontSize: 34 }}>{ic}</div><h3><T>{t}</T></h3><p><T>{d}</T></p></>;
+            const inner = <><div style={{ fontSize: 34 }}>{ic === "🇺🇸" || ic === "🇬🇪" ? <img className="hub-flag" src={ic === "🇺🇸" ? "/flags/us.svg" : "/flags/ge.svg"} alt="" /> : ic}</div><h3><T>{t}</T></h3><p><T>{d}</T></p></>;
             return href === "#ai"
               ? <OpenAI key={t} tab="assistant" className="step" style={{ display: "block" }}>{inner}</OpenAI>
               : <Link key={t} href={href} className="step" style={{ display: "block" }}>{inner}</Link>;

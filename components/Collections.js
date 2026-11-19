@@ -23,7 +23,7 @@ export default function Collections({ cars }) {
       <div className="bar">
         {tabs.map(([k, l]) => <button key={k} className={"chip" + (tab === k ? " on" : "")} onClick={() => setTab(k)}>{t(l)}</button>)}
       </div>
-      <CarsView key={tab} cars={(pick[tab] || pick.latest)().slice(0, 6)} compact />
+      <CarsView key={tab} cars={(pick[tab] || pick.latest)().slice(0, 10)} compact />
     </>
   );
 }
