@@ -92,14 +92,16 @@ export default function CarsView({ cars, compact = false }) {
       ) : null}
       <div className="grid">
         {list.length ? list.map((c) => (
-          <div className="car in" key={c.id} onClick={() => { setOpen(c); setMain(null); setRep(null); setPr(null); setIv(null); setRp(null); }}>
+          <div className="car in listing-car" key={c.id} onClick={() => { setOpen(c); setMain(null); setRep(null); setPr(null); setIv(null); setRp(null); }}>
             <Photo c={c} t={t} />
             <div className="info">
               <h3>{c.year} {c.make} {c.model}</h3>
               {isPublicCar(c) && <Link href={carPath(c)} onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", margin: "6px 0 10px", color: "var(--ac, #e33)" }}>View car details →</Link>}
+              <div className="card-bottom">
               <div className="meta"><span>{Number(c.miles || 0).toLocaleString()} mi</span><span>{c.fuel}</span><span>{c.trans}</span></div>
               <div className="price">{money(c.price)}{c.old_price > c.price ? <s style={{ color: "var(--mu)", fontSize: 14, marginLeft: 8 }}>{money(c.old_price)}</s> : null}</div>
               <small style={{ color: "var(--mu)" }}>≈ {money(c.price + EXTRA_COSTS)} {t("in Georgia (est.)")}</small>
+              </div>
             </div>
           </div>
         )) : <div className="empty">{t("New cars coming soon.")}</div>}

@@ -2,7 +2,7 @@
 :root{
 --bg:#0b0d12;--bg2:#12151d;--card:#171b25;--tx:#f2f4f8;--mu:#9aa3b5;--ac:#e5322d;--ac2:#ffb703;--bd:#262c3a;--ok:#2ecc71;--tr:#3da5ff}
 :root:not([data-theme="dark"]){}
-@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f6f7fa;--bg2:#fff;--card:#fff;--tx:#12151d;--mu:#5a6275;--bd:#e1e4ec}}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#FAF8F3;--bg2:#fff;--card:#fff;--tx:#12151d;--mu:#5a6275;--bd:#e1e4ec}}
 :root[data-theme="dark"]{--bg:#0b0d12;--bg2:#12151d;--card:#171b25;--tx:#f2f4f8;--mu:#9aa3b5;--bd:#262c3a}
 html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
@@ -192,3 +192,36 @@ main .contact-card{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clam
 @media(max-width:860px){main .calc,main .contact-card{grid-template-columns:minmax(0,1fr)}.contact-card .contact-direct{border-left:0;padding-left:0;border-top:1px solid var(--bd);padding-top:24px}.hero .wrap>.rc{margin-top:30px}}
 @media(max-width:680px){#latest .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#latest .info{padding:10px}#latest .info h3{font-size:15px}#latest .meta{gap:4px}}
 @media(max-width:380px){#latest .grid{grid-template-columns:minmax(0,1fr)}}
+
+/* Soft ivory page canvas only; preserve existing theme tokens and surfaces. */
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) main{background-color:var(--bg)}}
+/* Shared listing cards: keep the pricing block at the bottom. */
+.grid>.listing-car{display:flex;flex-direction:column;min-width:0}
+.grid>.listing-car>.ph{flex:none}
+.grid>.listing-car>.info{display:flex;flex-direction:column;flex:1;min-width:0;overflow-wrap:anywhere}
+.listing-car .card-bottom{margin-top:auto}
+.listing-car .price s{display:inline-block}
+/* Floating shortcuts stay together even when AI button size changes. */
+.floating-shortcuts{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:45;display:flex;flex-direction:column;align-items:flex-end;gap:12px}
+.floating-shortcuts .aifab{position:static}
+.whatsapp-fab{display:grid;place-items:center;width:54px;height:54px;border-radius:50%;background:#25D366;color:white;border:2px solid #fff;box-shadow:0 4px 14px #0003;transition:transform .2s,background-color .2s}
+.whatsapp-fab svg{width:30px;height:30px}
+.whatsapp-fab:hover{transform:translateY(-2px);background:#20bd5a}
+.whatsapp-fab:focus-visible{outline:3px solid var(--tx);outline-offset:3px}
+
+.listing-car .card-bottom>small{display:block;line-height:1.4;min-height:2.8em}
+.listing-car .card-bottom>.price{min-height:1.5em}
+
+/* Desktop header: distribute navigation across the available width. */
+@media(min-width:1551px){
+  nav .wrap{column-gap:clamp(18px,1.5vw,30px);}
+  nav .logo{font-size:clamp(22px,1.4vw,28px);}
+  nav .links{flex:1;min-width:0;justify-content:space-evenly;gap:clamp(10px,1vw,20px);font-size:clamp(16px,1vw,19px);font-weight:500;}
+  nav .r{gap:10px;}
+  nav .brandpic{margin-left:0;}
+}
+@media(min-width:1281px) and (max-width:1550px){
+  nav .wrap{column-gap:12px;}
+  nav .links{flex:1;min-width:0;justify-content:space-evenly;gap:8px;}
+}
+@media(min-width:1281px){nav .links{overflow-x:auto;scrollbar-width:none;justify-content:safe space-evenly}nav .links::-webkit-scrollbar{display:none}nav .links a{flex-shrink:0}}
