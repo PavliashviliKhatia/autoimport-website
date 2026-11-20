@@ -221,21 +221,29 @@ export default function Admin() {
         <span>Drag the handle or use arrows. {dirty ? "Unsaved order" : "Saved order"}</span>
       </div>
       <div className="admin-car-order-grid" style={{ marginTop: 20, display: "grid", gap: 12 }}>
-        <style>{` .admin-car-order-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } @media (max-width: 1050px) { .admin-car-order-grid { grid-template-columns: minmax(0, 1fr); } } @media (max-width: 480px) { .admin-car-order-grid [data-car-order] { grid-template-columns: minmax(0, 1fr) !important; } } `}</style>
+        <style>{`
+          .admin-car-order-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+          .admin-car-order-grid .order-handle, .admin-car-order-grid .order-arrow { padding: 0 !important; width: 32px; height: 32px; min-width: 32px; min-height: 32px; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; }
+          .admin-car-order-grid .order-photo { width: clamp(105px, 14vw, 200px); aspect-ratio: 40 / 27; object-fit: cover; flex-shrink: 0; border-radius: 8px; }
+          @media (max-width: 1050px) { .admin-car-order-grid { grid-template-columns: minmax(0,1fr); } }
+          @media (max-width: 480px) { .admin-car-order-grid .order-photo { width: 105px; } }
+        `}</style>
         {cars.length === 0 && <div className="empty">No cars yet. Tap “Add car”.</div>}
         {cars.map((c, i) => (
-          <div key={c.id} data-car-order={c.id} className="tl" style={{ display: "grid", gridTemplateColumns: "auto minmax(0, 1fr)", alignItems: "center", gap: 10, minWidth: 0, margin: 0, padding: 12, background: "var(--card)" }}>
-            <span style={{display:"flex",alignItems:"center",gap:4,flexWrap:"wrap",maxWidth:120}}>
-              <button type="button" className="chip" aria-label={"Drag " + c.make + " " + c.model} disabled={sorting || !!form} style={{touchAction:"none",cursor:"grab",fontSize:22}} onPointerDown={e => { drag.current = c.id; e.currentTarget.setPointerCapture(e.pointerId); }} onPointerCancel={() => {drag.current=null;}} onPointerUp={e => { const target = document.elementFromPoint(e.clientX,e.clientY)?.closest("[data-car-order]")?.dataset.carOrder; if(drag.current && target) move(drag.current,target); drag.current=null; }}>⠿</button>
+          <div key={c.id} data-car-order={c.id} className="tl" style={{ display: "grid", gridTemplateColumns: "auto minmax(0, 1fr)", alignItems: "center", gap: 10, minWidth: 0, margin: 0, padding: 12, justifyContent: "stretch", background: "var(--card)" }}>
+            <span style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,width:32}}>
+              <button type="button" className="chip order-handle" aria-label={"Drag " + c.make + " " + c.model} disabled={sorting || !!form} style={{touchAction:"none",cursor:"grab",fontSize:22}} onPointerDown={e => { drag.current = c.id; e.currentTarget.setPointerCapture(e.pointerId); }} onPointerCancel={() => {drag.current=null;}} onPointerUp={e => { const target = document.elementFromPoint(e.clientX,e.clientY)?.closest("[data-car-order]")?.dataset.carOrder; if(drag.current && target) move(drag.current,target); drag.current=null; }}>⠿</button>
               <small>{i+1}</small>
-              <button className="chip" aria-label="Move up" disabled={i===0 || sorting || !!form} onClick={()=>move(c.id,cars[i-1].id)}>↑</button>
-              <button className="chip" aria-label="Move down" disabled={i===cars.length-1 || sorting || !!form} onClick={()=>move(c.id,cars[i+1].id)}>↓</button>
+
             </span>
             <span style={{ display: "flex", gap: 12, alignItems: "center", justifyContent: "flex-start", minWidth: 0, overflowWrap: "anywhere" }}>
-              {c.images && c.images[0] && <img src={c.images[0]} alt="" style={{ height: 64, width: 96, flexShrink: 0, objectFit: "cover", borderRadius: 8 }} />}
+              {c.images && c.images[0] && <img src={c.images[0]} alt="" className="order-photo" />}
               <span>{c.year} {c.make} {c.model}<br /><small style={{ color: "var(--mu)" }}>{money(c.price)}{(c.cost_buy || c.cost_ship || c.cost_customs || c.cost_repair) ? " · costs " + money((c.cost_buy || 0) + (c.cost_ship || 0) + (c.cost_customs || 0) + (c.cost_repair || 0)) + (c.status === "sold" ? " · profit " + money(c.price - (c.cost_buy || 0) - (c.cost_ship || 0) - (c.cost_customs || 0) - (c.cost_repair || 0)) : "") : ""}</small></span>
             </span>
             <span style={{ display: "flex", gap: 6, alignItems: "center", justifyContent: "flex-end", flexWrap: "wrap", gridColumn: "1 / -1", borderTop: "1px solid var(--bd)", paddingTop: 8 }}>
+              <button className="chip order-arrow" aria-label="Move up" disabled={i===0 || sorting || !!form} onClick={()=>move(c.id,cars[i-1].id)}>↑</button>
+              <button className="chip order-arrow" aria-label="Move down" disabled={i===cars.length-1 || sorting || !!form} onClick={()=>move(c.id,cars[i+1].id)}>↓</button>
+              <span style={{ flex: "1 1 0" }} />
               <select disabled={dirty || sorting} value={c.status} onChange={(e) => setStatus(c, e.target.value)} style={{ background: "var(--card)", color: "var(--tx)", border: "1px solid var(--bd)", borderRadius: 8, padding: 6 }}>
                 {Object.entries(ST).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
