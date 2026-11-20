@@ -49,7 +49,7 @@ export default function Manage() {
   const sel = { background: "var(--card)", color: "var(--tx)", border: "1px solid var(--bd)", borderRadius: 8, padding: 6 };
 
   return (
-    <div className="wrap" style={{ padding: "30px 20px 80px", maxWidth: 820 }}>
+    <div className="wrap" style={{ padding: "30px 20px 80px", maxWidth: "none", width: "95%" }}>
       <a href="/admin" className="chip">← Cars</a>
       <h2>Manage</h2>
       <div className="bar">{TABS.map((x) => <button key={x} className={"chip" + (tab === x ? " on" : "")} onClick={() => setTab(x)}>{x}</button>)}</div>

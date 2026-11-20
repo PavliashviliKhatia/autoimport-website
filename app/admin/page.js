@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { money } from "@/lib/site";
 
@@ -23,6 +23,23 @@ function compress(file) {
 export default function Admin() {
   const [session, setSession] = useState(undefined);
   const [cars, setCars] = useState([]);
+  const [dirty, setDirty] = useState(false);
+  const [sorting, setSorting] = useState(false);
+  const drag = useRef(null);
+  const move = (id, target) => {
+    if (id === target || sorting) return;
+    setCars(old => { const a = [...old]; const i = a.findIndex(c => c.id === id), j = a.findIndex(c => c.id === target); if(i < 0 || j < 0) return old; a.splice(j, 0, a.splice(i, 1)[0]); return a; });
+    setDirty(true);
+  };
+  const saveOrder = async () => {
+    setSorting(true); setMsg("");
+    try {
+      const { error } = await supabase.rpc("save_car_order", { ordered_ids: cars.map(c => c.id) });
+      if (error) throw error;
+      setDirty(false); setMsg("Order saved. Public pages update shortly.");
+    } catch(e) { setMsg("Could not save order: " + e.message); }
+    finally { setSorting(false); }
+  };
   const [form, setForm] = useState(null);
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
@@ -40,8 +57,8 @@ export default function Admin() {
   }, []);
 
   const load = async () => {
-    const { data, error } = await supabase.from("cars").select("*").order("created_at", { ascending: false });
-    if (error) setMsg(error.message); else setCars(data);
+    const { data, error } = await supabase.from("cars").select("*").order("display_order", { ascending: true, nullsFirst: true }).order("created_at", { ascending: false }).order("id");
+    if (error) setMsg(error.message); else { setCars(data); setDirty(false); }
     const a = await supabase.from("alerts").select("*").order("created_at", { ascending: false });
     if (!a.error) setAlerts(a.data);
     const rv = await supabase.from("reviews").select("*").order("created_at", { ascending: false });
@@ -112,14 +129,20 @@ export default function Admin() {
   const del = async (c) => { if (!confirm(`Delete ${c.year} ${c.make} ${c.model}?`)) return; const { error } = await supabase.from("cars").delete().eq("id", c.id); if (error) setMsg(error.message); else load(); };
 
   return (
-    <div className="wrap" style={{ padding: "30px 20px 80px", maxWidth: 820 }}>
+    <div className="wrap" style={{ padding: "30px 20px 80px", maxWidth: "none", width: "95%" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         <h2 style={{ margin: 0 }}>Cars</h2>
-        <span style={{ display: "flex", gap: 8 }}>
-          <button className="btn" onClick={() => { setForm({ ...EMPTY }); setMsg(""); }}>＋ Add car</button>
+        <span style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button disabled={dirty || sorting} className="btn" onClick={() => { setForm({ ...EMPTY }); setMsg(""); }}>＋ Add car</button>
           <a className="btn g" href="/admin/manage">Requests · Orders · Market · Services</a>
           <button className="btn g" onClick={() => supabase.auth.signOut()}>Log out</button>
         </span>
+      </div>
+      {/* Temporary admin notice -- remove this block when no longer needed. */}
+      <div lang="ka" style={{ marginTop: 20, padding: "18px 20px", background: "#FFF4E1", border: "1px solid #E8D5B3", borderRadius: 14, textAlign: "center", color: "#514332", lineHeight: 1.8, overflowWrap: "anywhere" }}>
+        <div style={{ fontSize: 16, fontWeight: 600 }}>რაღაცები გავასწორე. შერიგების ფუნქცია ჯერ კიდევ მოლოდინის რეჟიმშია. 😂</div>
+        <div style={{ fontSize: 16, fontWeight: 600 }}>აღარ გავიდა მარტოობის 100 წელი?</div>
+        <div style={{ borderTop: "1px solid #E8D5B3", marginTop: 12, paddingTop: 10, fontSize: 14, color: "#75634E" }}><b>P.S.</b> მანქანების ფასი ზოგზე 0$ და 1$ გიწერია და გაასწორე.</div>
       </div>
       {msg && <p style={{ color: "var(--ac2)" }}>{msg}</p>}
       {matches && (
@@ -191,20 +214,32 @@ export default function Admin() {
         </form>
       )}
 
+      <div className="mini" style={{ marginTop: 20, flexWrap: "wrap" }}>
+        <button className="btn" disabled={!dirty || sorting || !!form} onClick={saveOrder}>Save order</button>
+        <button className="chip" disabled={sorting || !!form} onClick={() => { setCars(old => [...old].sort((a,b) => new Date(b.created_at)-new Date(a.created_at) || String(a.id).localeCompare(String(b.id)))); setDirty(true); }}>Reset to newest first</button>
+        <button className="chip" disabled={!dirty || sorting} onClick={load}>Discard changes</button>
+        <span>Drag the handle or use arrows. {dirty ? "Unsaved order" : "Saved order"}</span>
+      </div>
       <div style={{ marginTop: 20, display: "grid", gap: 10 }}>
         {cars.length === 0 && <div className="empty">No cars yet. Tap “Add car”.</div>}
-        {cars.map((c) => (
-          <div key={c.id} className="tl" style={{ alignItems: "center", flexWrap: "wrap" }}>
+        {cars.map((c, i) => (
+          <div key={c.id} data-car-order={c.id} className="tl" style={{ alignItems: "center", flexWrap: "wrap" }}>
+            <span style={{display:"flex",alignItems:"center",gap:8}}>
+              <button type="button" className="chip" aria-label={"Drag " + c.make + " " + c.model} disabled={sorting || !!form} style={{touchAction:"none",cursor:"grab",fontSize:22}} onPointerDown={e => { drag.current = c.id; e.currentTarget.setPointerCapture(e.pointerId); }} onPointerCancel={() => {drag.current=null;}} onPointerUp={e => { const target = document.elementFromPoint(e.clientX,e.clientY)?.closest("[data-car-order]")?.dataset.carOrder; if(drag.current && target) move(drag.current,target); drag.current=null; }}>⠿</button>
+              <small>{i+1}</small>
+              <button className="chip" aria-label="Move up" disabled={i===0 || sorting || !!form} onClick={()=>move(c.id,cars[i-1].id)}>↑</button>
+              <button className="chip" aria-label="Move down" disabled={i===cars.length-1 || sorting || !!form} onClick={()=>move(c.id,cars[i+1].id)}>↓</button>
+            </span>
             <span style={{ display: "flex", gap: 12, alignItems: "center" }}>
               {c.images && c.images[0] && <img src={c.images[0]} alt="" style={{ height: 46, width: 70, objectFit: "cover", borderRadius: 8 }} />}
               <span>{c.year} {c.make} {c.model}<br /><small style={{ color: "var(--mu)" }}>{money(c.price)}{(c.cost_buy || c.cost_ship || c.cost_customs || c.cost_repair) ? " · costs " + money((c.cost_buy || 0) + (c.cost_ship || 0) + (c.cost_customs || 0) + (c.cost_repair || 0)) + (c.status === "sold" ? " · profit " + money(c.price - (c.cost_buy || 0) - (c.cost_ship || 0) - (c.cost_customs || 0) - (c.cost_repair || 0)) : "") : ""}</small></span>
             </span>
             <span style={{ display: "flex", gap: 6, alignItems: "center" }}>
-              <select value={c.status} onChange={(e) => setStatus(c, e.target.value)} style={{ background: "var(--card)", color: "var(--tx)", border: "1px solid var(--bd)", borderRadius: 8, padding: 6 }}>
+              <select disabled={dirty || sorting} value={c.status} onChange={(e) => setStatus(c, e.target.value)} style={{ background: "var(--card)", color: "var(--tx)", border: "1px solid var(--bd)", borderRadius: 8, padding: 6 }}>
                 {Object.entries(ST).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
-              <button className="chip" onClick={() => { setForm({ ...EMPTY, ...c, images: c.images || [], description: c.description || "" }); setMsg(""); window.scrollTo(0, 0); }}>Edit</button>
-              <button className="chip" onClick={() => del(c)}>Delete</button>
+              <button disabled={dirty || sorting} className="chip" onClick={() => { setForm({ ...EMPTY, ...c, images: c.images || [], description: c.description || "" }); setMsg(""); window.scrollTo(0, 0); }}>Edit</button>
+              <button disabled={dirty || sorting} className="chip" onClick={() => del(c)}>Delete</button>
             </span>
           </div>
         ))}
